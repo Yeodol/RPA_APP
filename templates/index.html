@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎登录</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="/static/icon-192x192.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 400px;
+                margin: 40px auto;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 24px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            color: #666;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #007bff;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #007bff;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            appearance: none;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .verify-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            padding: 12px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .verify-btn:disabled {
+            background: #ccc;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:active {
+            background: #0056b3;
+        }
+
+        .agreement {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .agreement a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .bottom-nav {
+            margin-top: auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            background: #fff;
+            border-top: 1px solid #eee;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #666;
+            text-decoration: none;
+            padding: 10px;
+        }
+
+        @media (max-height: 600px) {
+            .bottom-nav {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>欢迎登录！</h1>
+        <div class="tabs">
+            <div class="tab active">验证码登录</div>
+            <div class="tab">账号登录</div>
+        </div>
+        <form id="loginForm">
+            <div class="input-group">
+                <input type="tel" placeholder="请输入手机号" id="phone" required pattern="[0-9]*">
+            </div>
+            <div class="input-group">
+                <input type="text" placeholder="请输入验证码" id="code" required pattern="[0-9]*">
+                <button type="button" class="verify-btn" id="getCode">获取验证码</button>
+            </div>
+            <button type="submit" class="login-btn">登录</button>
+            <div class="agreement">
+                <input type="checkbox" id="agree" required>
+                <label for="agree">登录即代表您已阅读并同意</label>
+                <a href="#">《用户服务协议》</a>
+                <a href="#">《隐私政策》</a>
+            </div>
+        </form>
+    </div>
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item">≡</a>
+        <a href="#" class="nav-item">⌂</a>
+        <a href="#" class="nav-item">⇦</a>
+    </nav>
+
+    <script>
+        // 注册 Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // 处理移动端点击延迟
+        document.addEventListener('touchstart', function() {}, false);
+
+        document.getElementById('getCode').addEventListener('click', function() {
+            const phone = document.getElementById('phone').value;
+            if (!phone) {
+                alert('请输入手机号');
+                return;
+            }
+            
+            const btn = this;
+            btn.disabled = true;
+            let countdown = 60;
+            btn.textContent = `${countdown}秒后重试`;
+            
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.textContent = '获取验证码';
+                } else {
+                    btn.textContent = `${countdown}秒后重试`;
+                }
+            }, 1000);
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('phone').value;
+            const code = document.getElementById('code').value;
+            const agree = document.getElementById('agree').checked;
+
+            if (!agree) {
+                alert('请阅读并同意用户协议和隐私政策');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone, code })
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    alert('登录成功！');
+                } else {
+                    alert(data.message || '登录失败，请重试');
+                }
+            } catch (error) {
+                alert('网络错误，请重试');
+            }
+        });
+    </script>
+</body>
+</html> 
